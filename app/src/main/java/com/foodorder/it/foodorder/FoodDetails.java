@@ -5,11 +5,15 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
+import com.foodorder.it.foodorder.Database.Database;
 import com.foodorder.it.foodorder.Model.Food;
+import com.foodorder.it.foodorder.Model.Order;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,6 +34,8 @@ public class FoodDetails extends AppCompatActivity {
     FirebaseDatabase database;
     DatabaseReference foods;
 
+    Food currentFood;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,8 +54,22 @@ public class FoodDetails extends AppCompatActivity {
 
         numberButton = findViewById(R.id.number_button);
         btnCart = findViewById(R.id.btnCart);
-        collapsingToolbarLayout = findViewById(R.id.collapsing);
+        btnCart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Database(getBaseContext()).addToCart(new Order(
+                        foodId,
+                        currentFood.getName(),
+                        numberButton.getNumber(),
+                        currentFood.getPrice(),
+                        currentFood.getDiscount()
+                ));
+                Toast.makeText(FoodDetails.this, "Order added to Cart", Toast.LENGTH_SHORT).show();
+            }
+        });
 
+
+        collapsingToolbarLayout = findViewById(R.id.collapsing);
         collapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.expanedAppBar);
         collapsingToolbarLayout.setCollapsedTitleTextAppearance(R.style.collapsedAppBar);
 
@@ -67,17 +87,17 @@ public class FoodDetails extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                Food food = dataSnapshot.getValue(Food.class);
+                currentFood = dataSnapshot.getValue(Food.class);
 
 
                 //Set Image
-                Picasso.with(FoodDetails.this).load(food.getImage()).into(food_image);
+                Picasso.with(FoodDetails.this).load(currentFood.getImage()).into(food_image);
 
-                collapsingToolbarLayout.setTitle(food.getName());
+                collapsingToolbarLayout.setTitle(currentFood.getName());
 
-                food_price.setText(food.getPrice());
-                food_name.setText(food.getName());
-                food_description.setText(food.getDescription());
+                food_price.setText(currentFood.getPrice());
+                food_name.setText(currentFood.getName());
+                food_description.setText(currentFood.getDescription());
 
             }
 

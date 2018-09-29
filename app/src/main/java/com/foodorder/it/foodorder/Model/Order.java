@@ -2,21 +2,21 @@ package com.foodorder.it.foodorder.Model;
 
 public class Order {
 
-    public String ProductId;
-    public String ProductName;
-    public String Quantity;
-    public String Price;
-    public String Discount;
+    private String ProductId;
+    private String ProductName;
+    private String Quantity;
+    private String Price;
+    private String Discountt;
 
     public Order() {
     }
 
-    public Order(String productId, String productName, String quantity, String price, String discount) {
+    public Order(String productId, String productName, String quantity, String price, String discountt) {
         ProductId = productId;
         ProductName = productName;
         Quantity = quantity;
         Price = price;
-        Discount = discount;
+        Discountt = discountt;
     }
 
     public String getProductId() {
@@ -51,11 +51,11 @@ public class Order {
         Price = price;
     }
 
-    public String getDiscount() {
-        return Discount;
+    public String getDiscountt() {
+        return Discountt;
     }
 
-    public void setDiscount(String discount) {
-        Discount = discount;
+    public void setDiscountt(String discountt) {
+        Discountt = discountt;
     }
 }

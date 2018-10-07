@@ -59,7 +59,7 @@
             android:layout_height="wrap_content">
 
             <android.support.v7.widget.CardView
-                app:cardElevation="5dp"
+                app:cardElevation="8dp"
                 app:cardUseCompatPadding="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -124,16 +124,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/food_description"
-                    android:layout_marginTop="12dp"
-                    android:lineSpacingMultiplier="1.5"
-                    android:padding="12dp"
-                    android:text="Description"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+               <LinearLayout
+                   android:orientation="vertical"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content">
+
+                   <RatingBar
+                       android:id="@+id/ratingBar"
+                       android:rating="0"
+                       android:max="5"
+                       android:isIndicator="true"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content" />
+
+                   <TextView
+                       android:id="@+id/food_description"
+                       android:layout_marginTop="12dp"
+                       android:lineSpacingMultiplier="1.5"
+                       android:padding="12dp"
+                       android:text="Description"
+                       android:textColor="@android:color/black"
+                       android:textSize="14sp"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content" />
+               </LinearLayout>
             </android.support.v7.widget.CardView>
             
         </LinearLayout>
@@ -142,14 +156,56 @@
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btnCart"
         android:src="@drawable/ic_shopping_cart_black_24dp"
-        android:backgroundTint="@android:color/white"
+        app:backgroundTint="@android:color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:elevation="6dp"
+        app:elevation="4dp"
         app:pressedTranslationZ="12dp"
         app:layout_anchor="@id/app_bar_layout"
         app:layout_anchorGravity="bottom|right|end"
         app:useCompatPadding="true"
         />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btnRating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:backgroundTint="@android:color/white"
+        app:elevation="4dp"
+        android:src="@drawable/ic_star_black_24dp"
+        app:layout_anchor="@id/app_bar_layout"
+        app:layout_anchorGravity="bottom|right|start"
+        app:pressedTranslationZ="12dp"
+        app:useCompatPadding="true" />
+
 </android.support.design.widget.CoordinatorLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

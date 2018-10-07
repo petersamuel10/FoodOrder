@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -74,7 +75,10 @@ public class Cart extends AppCompatActivity {
         btnPlace.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showAlertDialog();
+                if(cart.size()>0)
+                  showAlertDialog();
+                else
+                    Toast.makeText(Cart.this, "Your cart is Empty ", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -88,7 +92,8 @@ public class Cart extends AppCompatActivity {
         //Calculate total price
         int total=0;
         for(Order order:cart)
-            total+=(Integer.parseInt(order.getPrice()))*(Integer.parseInt(order.getQuantity()));
+            total +=(Integer.parseInt(order.getPrice()))*(Integer.parseInt(order.getQuantity()));
+
 
         Locale locale = new Locale("en","US");
         NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
@@ -126,7 +131,6 @@ public class Cart extends AppCompatActivity {
     }
 
     private void addToFirebaseDatabase() {
-
         Request request = new Request(
                 Common.CurrentUser.getPhone(),
                 Common.CurrentUser.getName(),
@@ -146,5 +150,26 @@ public class Cart extends AppCompatActivity {
         new Database(this).cleanCart();
         Toast.makeText(this, "Thank you , Order Place", Toast.LENGTH_SHORT).show();
         finish();
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        if(item.getTitle().equals(Common.DELETE))
+            deleteCart(item.getOrder());
+        return true;
+    }
+
+    private void deleteCart(int position) {
+
+        // delete cart from List <order> by position
+        cart.remove(position);
+
+        // delete all old data from database sql
+        new Database(this).cleanCart();
+        // update sql with new data
+        for(Order item:cart)
+        new Database(this).addToCart(item);
+
+        LoadListFood();
     }
 }

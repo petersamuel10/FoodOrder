@@ -22,10 +22,13 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.foodorder.it.foodorder.Common.Common;
 import com.foodorder.it.foodorder.Interface.ItemClickListener;
 import com.foodorder.it.foodorder.Model.Category;
+import com.foodorder.it.foodorder.Service.ListenOrder;
 import com.foodorder.it.foodorder.ViewHolder.MenuViewHolder;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
+
+import io.paperdb.Paper;
 
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -52,6 +55,9 @@ public class Home extends AppCompatActivity
         //init database
         database = FirebaseDatabase.getInstance();
         category = database.getReference("Category");
+
+        //paper init
+        Paper.init(this);
 
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -82,7 +88,17 @@ public class Home extends AppCompatActivity
         layoutManager = new  LinearLayoutManager(this);
         recycler_menu.setLayoutManager(layoutManager);
 
-        Load_menu();
+        if (Common.isConnectToTheInternet(getBaseContext()))
+            Load_menu();
+        else {
+            Toast.makeText(Home.this, "Please check your Connection !!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
+        //Register Service
+        Intent service = new Intent(Home.this, ListenOrder.class);
+        startService(service);
 
     }
 
@@ -107,6 +123,7 @@ public class Home extends AppCompatActivity
 
             }
         };
+        adapter.notifyDataSetChanged();
         recycler_menu.setAdapter(adapter);
 
     }
@@ -130,8 +147,8 @@ public class Home extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-
+        if(item.getItemId() == R.id.refresh)
+            Load_menu();
         return super.onOptionsItemSelected(item);
     }
 
@@ -153,6 +170,10 @@ public class Home extends AppCompatActivity
 
         } else if (id == R.id.nav_log_out) {
 
+            //Remove paper remember user key and password
+              Paper.book().destroy();
+
+            //Logout
             Intent signIn = new Intent(Home.this,SignIn.class);
             signIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(signIn);

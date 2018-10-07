@@ -31,6 +31,6 @@ public class OrderViewHolder extends RecyclerView.ViewHolder implements View.OnC
 
     @Override
     public void onClick(View view) {
-        itemClickListener.Onclick(view,getAdapterPosition(),false);
+      //  itemClickListener.Onclick(view,getAdapterPosition(),false);
     }
 }

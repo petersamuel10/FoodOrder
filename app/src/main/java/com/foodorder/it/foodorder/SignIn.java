@@ -17,9 +17,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rengwuxian.materialedittext.MaterialEditText;
+import com.rey.material.widget.CheckBox;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.paperdb.Paper;
 
 public class SignIn extends AppCompatActivity {
 
@@ -29,6 +31,8 @@ public class SignIn extends AppCompatActivity {
     MaterialEditText password;
     @BindView(R.id.btnsignIn)
     Button signIn;
+    @BindView(R.id.ckbRemember)
+    CheckBox ckbRemember;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,10 +44,22 @@ public class SignIn extends AppCompatActivity {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference table_user = database.getReference("User");
 
+        //init paper
+        Paper.init(this);
+
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final ProgressDialog mDialog = new ProgressDialog(SignIn.this);
+                if (Common.isConnectToTheInternet(getBaseContext()))
+                {
+                    //save user and password
+                    if(ckbRemember.isChecked())
+                    {
+                        Paper.book().write(Common.USER_KEY,phone.getText().toString());
+                        Paper.book().write(Common.PWD_KEY,password.getText().toString());
+                    }
+
+                    final ProgressDialog mDialog = new ProgressDialog(SignIn.this);
                 mDialog.setMessage("Please waiting !....");
                 mDialog.show();
 
@@ -51,27 +67,22 @@ public class SignIn extends AppCompatActivity {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         // check if the user not exist
-                        if(dataSnapshot.child(phone.getText().toString()).exists())
-                        {
+                        if (dataSnapshot.child(phone.getText().toString()).exists()) {
                             mDialog.dismiss();
                             //get user information
                             User user = dataSnapshot.child(phone.getText().toString()).getValue(User.class);
                             user.setPhone(phone.getText().toString());
-                            if(user.getPassword().equals(password.getText().toString()))
-                            {
-                                Intent homeIntent = new Intent(SignIn.this,Home.class);
+                            if (user.getPassword().equals(password.getText().toString())) {
+                                Intent homeIntent = new Intent(SignIn.this, Home.class);
                                 Common.CurrentUser = user;
                                 startActivity(homeIntent);
                                 finish();
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Wrong Password!!", Toast.LENGTH_LONG).show();
                             }
-                            else {
-                                Toast.makeText(getApplicationContext(),"Wrong Password!!",Toast.LENGTH_LONG).show();
-                            }
-                        }
-                        else
-                        {
+                        } else {
                             mDialog.dismiss();
-                            Toast.makeText(getApplicationContext(),"User not exist in the database !!",Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "User not exist in the database !!", Toast.LENGTH_LONG).show();
                         }
                     }
 
@@ -80,8 +91,12 @@ public class SignIn extends AppCompatActivity {
 
                     }
                 });
-
             }
+            else {
+                    Toast.makeText(SignIn.this, "Please check your Connection !!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                }
         });
     }
 }

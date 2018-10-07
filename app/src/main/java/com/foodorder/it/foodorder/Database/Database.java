@@ -14,60 +14,88 @@ import java.util.List;
 
 public class Database extends SQLiteAssetHelper {
 
-     private static final String DB_NAME = "EatIt.db";
-     private static final int DB_V = 1;
+    private static final String DB_NAME = "EatIt.db";
+    private static final int DB_V = 1;
 
-     public Database(Context context) {
+    public Database(Context context) {
         super(context, DB_NAME, null, DB_V);
     }
 
-    public List<Order> getCarts(){
+    public List<Order> getCarts() {
 
-         SQLiteDatabase db = getReadableDatabase();
-         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-
-
-         String[] sqlSelect ={"ProductName","ProductId","Quantity","Price","Discount"};
-         String sqlTable = "orderDetails";
-
-         qb.setTables(sqlTable);
-         Cursor c = qb.query(db,sqlSelect,null,null,null,null,null);
-
-         final List<Order> result = new ArrayList<>();
-         if(c.moveToNext())
-         {
-             do{
-
-                   result.add(new Order(c.getString(c.getColumnIndex("ProductId")),
-                           c.getString(c.getColumnIndex("ProductName")),
-                           c.getString(c.getColumnIndex("Quantity")),
-                           c.getString(c.getColumnIndex("Price")),
-                           c.getString(c.getColumnIndex("Discount"))));
-
-             }while (c.moveToNext());
+        SQLiteDatabase db = getReadableDatabase();
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
 
-         }
-         return result;
+        String[] sqlSelect = {"ProductName", "ProductId", "Quantity", "Price", "Discount"};
+        String sqlTable = "orderDetails";
+
+        qb.setTables(sqlTable);
+        Cursor c = qb.query(db, sqlSelect, null, null, null, null, null);
+
+        final List<Order> result = new ArrayList<>();
+        if (c.moveToNext()) {
+            do {
+
+                result.add(new Order(c.getString(c.getColumnIndex("ProductId")),
+                        c.getString(c.getColumnIndex("ProductName")),
+                        c.getString(c.getColumnIndex("Quantity")),
+                        c.getString(c.getColumnIndex("Price")),
+                        c.getString(c.getColumnIndex("Discount"))));
+
+            } while (c.moveToNext());
+
+
+        }
+        return result;
     }
 
-    public void addToCart(Order order){
+    public void addToCart(Order order) {
 
-         SQLiteDatabase db = getReadableDatabase();
-         String query = String.format("INSERT INTO orderDetails (ProductId,ProductName,Quantity,Price,Discount)VALUES('%s','%s','%s','%s','%s');",
-                        order.getProductId(),
-                        order.getProductName(),
-                        order.getQuantity(),
-                        order.getPrice(),
-                        order.getDiscountt());
-         db.execSQL(query);
+        SQLiteDatabase db = getReadableDatabase();
+        String query = String.format("INSERT INTO orderDetails (ProductId,ProductName,Quantity,Price,Discount)VALUES('%s','%s','%s','%s','%s');",
+                order.getProductId(),
+                order.getProductName(),
+                order.getQuantity(),
+                order.getPrice(),
+                order.getDiscountt());
+        db.execSQL(query);
     }
 
-    public void cleanCart(){
+    public void cleanCart() {
 
         SQLiteDatabase db = getWritableDatabase();
         String query = String.format("DELETE FROM orderDetails");
 
         db.execSQL(query);
     }
-}
+
+
+    public void addToFavourites(String foodId) {
+        SQLiteDatabase sql = getReadableDatabase();
+        String query = String.format("INSERT INTO Favourites(FoodId) VALUES('%s');", foodId);
+        sql.execSQL(query);
+    }
+
+    public void removeFromFavourites(String foodId) {
+        SQLiteDatabase sql = getReadableDatabase();
+        String query = String.format("DELETE FROM Favourites WHERE FoodId='%s';", foodId);
+        sql.execSQL(query);
+    }
+
+    public boolean isFavorite(String foodId) {
+            SQLiteDatabase sql = getReadableDatabase();
+            String query = String.format("SELECT * FROM Favourites WHERE FoodId ='%s';", foodId);
+            Cursor cursor = sql.rawQuery(query, null);
+            if (cursor.getCount() > 0) {
+                cursor.close();
+                return true;
+            }
+            else {
+                cursor.close();
+                return false;
+            }
+            }
+
+    }
+

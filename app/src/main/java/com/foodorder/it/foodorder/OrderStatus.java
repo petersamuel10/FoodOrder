@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.foodorder.it.foodorder.Common.Common;
@@ -11,6 +12,8 @@ import com.foodorder.it.foodorder.Model.Request;
 import com.foodorder.it.foodorder.ViewHolder.OrderViewHolder;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import static com.foodorder.it.foodorder.Common.Common.convertCodeToStatus;
 
 public class OrderStatus extends AppCompatActivity {
 
@@ -38,7 +41,16 @@ public class OrderStatus extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
 
-        loadOrders(Common.CurrentUser.getPhone());
+        //intent from home activity
+        if(getIntent().getExtras()==null)
+            loadOrders(Common.CurrentUser.getPhone());
+
+            // from service notification
+        else
+            loadOrders(getIntent().getStringExtra("userPhone"));
+
+
+
     }
 
     private void loadOrders(String phone) {
@@ -52,20 +64,13 @@ public class OrderStatus extends AppCompatActivity {
             protected void populateViewHolder(OrderViewHolder viewHolder, Request model, int position) {
 
                 viewHolder.txtOrderId.setText(adapter.getRef(position).getKey());
-                viewHolder.txtOrderStatus.setText(convetCodeToStatus(model.getStatus()));
+                viewHolder.txtOrderStatus.setText(convertCodeToStatus(model.getStatus()));
                 viewHolder.txtOrderPhone.setText(model.getPhone());
                 viewHolder.txtOrderAddress.setText(model.getAddress());
             }
         };
+        adapter.notifyDataSetChanged();
         recyclerView.setAdapter(adapter);
     }
 
-    private String convetCodeToStatus(String status) {
-        if(status.equals("0"))
-            return "placed";
-        else if (status.equals("1"))
-            return "On my way";
-        else
-            return "shipped";
-    }
 }

@@ -14,7 +14,7 @@ import com.foodorder.it.foodorder.R;
 public class FoodViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public TextView food_name;
-    public ImageView food_image;
+    public ImageView food_image ,fav;
     private ItemClickListener itemClickListener;
 
     public FoodViewHolder(@NonNull View itemView) {
@@ -22,7 +22,7 @@ public class FoodViewHolder extends RecyclerView.ViewHolder implements View.OnCl
 
         food_name = itemView.findViewById(R.id.food_name);
         food_image = itemView.findViewById(R.id.food_Image);
-
+        fav = itemView.findViewById(R.id.fav);
         itemView.setOnClickListener(this);
 
     }

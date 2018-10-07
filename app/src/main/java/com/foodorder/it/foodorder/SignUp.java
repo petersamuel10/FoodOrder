@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.foodorder.it.foodorder.Common.Common;
 import com.foodorder.it.foodorder.Model.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -41,31 +42,36 @@ public class SignUp extends AppCompatActivity {
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final ProgressDialog mDial = new ProgressDialog(SignUp.this);
-                mDial.setMessage("Please waiting ....");
-                mDial.show();
-                table_user.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                        mDial.dismiss();
-                        //chif if the phone is already exist
-                        if(dataSnapshot.child(phone.getText().toString()).exists()) {
-                            Toast.makeText(getApplicationContext(),"Tis phone number is already exist in the database !!",Toast.LENGTH_LONG).show();
+                if(Common.isConnectToTheInternet(getBaseContext())) {
+                    final ProgressDialog mDial = new ProgressDialog(SignUp.this);
+                    mDial.setMessage("Please waiting ....");
+                    mDial.show();
+                    table_user.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                            mDial.dismiss();
+                            //chif if the phone is already exist
+                            if (dataSnapshot.child(phone.getText().toString()).exists()) {
+                                Toast.makeText(getApplicationContext(), "Tis phone number is already exist in the database !!", Toast.LENGTH_LONG).show();
+                            } else {
+                                User user = new User(name.getText().toString(), password.getText().toString());
+                                table_user.child(phone.getText().toString()).setValue(user);
+                                Toast.makeText(getApplicationContext(), "Sign Up Successfully !!", Toast.LENGTH_LONG).show();
+                            }
                         }
-                        else
-                        {
-                            User user = new User(name.getText().toString(),password.getText().toString());
-                            table_user.child(phone.getText().toString()).setValue(user);
-                            Toast.makeText(getApplicationContext(),"Sign Up Successfully !!",Toast.LENGTH_LONG).show();
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
                         }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
+                    });
+                }else
+                {
+                    Toast.makeText(SignUp.this, "Please check your Connection !!!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
             }
         });
     }

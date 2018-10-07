@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.foodorder.it.foodorder.Common.Common;
+import com.foodorder.it.foodorder.Database.Database;
 import com.foodorder.it.foodorder.Interface.ItemClickListener;
 import com.foodorder.it.foodorder.Model.Food;
 import com.foodorder.it.foodorder.ViewHolder.FoodViewHolder;
@@ -62,10 +64,14 @@ public class FoodList extends AppCompatActivity {
         // get Intent
         if(getIntent()!=null)
             categoryId = getIntent().getStringExtra("categoryId");
-        if(!categoryId.isEmpty()&& categoryId!=null)
-        {
-            LoadFoodList(categoryId);
-        }
+
+            if(!categoryId.isEmpty()&& categoryId!=null)
+                if (Common.isConnectToTheInternet(getBaseContext()))
+                    LoadFoodList(categoryId);
+                else {
+                    Toast.makeText(FoodList.this, "Please check your Connection !!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
         LoadSuggest();  // search suggest function
         materialSearchBar.setLastSuggestions(suggestList);
@@ -148,12 +154,34 @@ public class FoodList extends AppCompatActivity {
 
         adapter = new FirebaseRecyclerAdapter<Food, FoodViewHolder>
                 (Food.class,R.layout.food_item,FoodViewHolder.class,
-                 foodList.orderByChild("MenuId").equalTo(categoryId)) { //like :select * from foods where MenuId = categoryId;
+                 foodList.orderByChild("menuId").equalTo(categoryId)) { //like :select * from foods where MenuId = categoryId;
             @Override
-            protected void populateViewHolder(FoodViewHolder viewHolder, Food model, int position) {
+            protected void populateViewHolder(final FoodViewHolder viewHolder, final Food model, final int position) {
 
                 viewHolder.food_name.setText(model.getName());
                 Picasso.with(FoodList.this).load(model.getImage()).into(viewHolder.food_image);
+
+                if(new Database(getBaseContext()).isFavorite(adapter.getRef(position).getKey()))
+                    viewHolder.fav.setImageResource(R.drawable.ic_favorite_black_24dp);
+
+                //click to change state of favourite
+                viewHolder.fav.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(new Database(getBaseContext()).isFavorite(adapter.getRef(position).getKey()))
+                        {
+                            new Database(getBaseContext()).removeFromFavourites(adapter.getRef(position).getKey());
+                            viewHolder.fav.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+                            Toast.makeText(FoodList.this, ""+model.getName()+"is remove from favorite", Toast.LENGTH_SHORT).show();
+                        }
+                        else
+                        {
+                            new Database(getBaseContext()).addToFavourites(adapter.getRef(position).getKey());
+                            viewHolder.fav.setImageResource(R.drawable.ic_favorite_black_24dp);
+                            Toast.makeText(FoodList.this, ""+model.getName()+"is added to favorite", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
 
                 final Food local = model;
                 viewHolder.setItemClickListener(new ItemClickListener() {
@@ -169,6 +197,7 @@ public class FoodList extends AppCompatActivity {
         };
 
         //set adapter
+        adapter.notifyDataSetChanged();
         recyclerView.setAdapter(adapter);
 
 
@@ -176,7 +205,7 @@ public class FoodList extends AppCompatActivity {
 
     private void LoadSuggest() {
 
-        foodList.orderByChild("MenuId").equalTo(categoryId).addValueEventListener(new ValueEventListener() {
+        foodList.orderByChild("menuId").equalTo(categoryId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for(DataSnapshot postSnapshot:dataSnapshot.getChildren()) {

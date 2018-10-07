@@ -49,6 +49,14 @@ dependencies {
 
     implementation 'com.github.mancj:MaterialSearchBar:0.7.6'
 
+    //remember password check box
+    implementation 'io.paperdb:paperdb:2.1'
+    implementation 'com.github.rey5137:material:1.2.4'
+
+    // ration food
+    implementation 'com.stepstone.apprating:app-rating:2.3.0'
+
+
 }
 
 apply plugin: 'com.google.gms.google-services'

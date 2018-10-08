@@ -1,4 +1,6 @@
 # FoodOrder
+No matter where you are :whether you are at home ,or in the office, or on the beach.
+We will find you and we will feed you.<br/>
 This app for client side to show category of foods available for order 
 
 # Used

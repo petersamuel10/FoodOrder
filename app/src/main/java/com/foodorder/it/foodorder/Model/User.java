@@ -10,10 +10,10 @@ public class User {
     public User() {
     }
 
-    public User(String name, String password) {
+    public User(String name, String password,String isStaff) {
         Name = name;
         Password = password;
-        IsStaff ="false";
+        IsStaff = isStaff;
     }
 
     public String getPhone() {

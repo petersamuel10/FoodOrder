@@ -1,6 +1,7 @@
 package com.foodorder.it.foodorder;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +20,8 @@ import com.rengwuxian.materialedittext.MaterialEditText;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class SignUp extends AppCompatActivity {
 
@@ -32,8 +35,17 @@ public class SignUp extends AppCompatActivity {
     Button signUp;
 
     @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //add font library
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/restaurant_font.otf")
+                .setFontAttrId(R.attr.fontPath).build());
         setContentView(R.layout.activity_sign_up);
         ButterKnife.bind(this);
         // Init firebase database
@@ -56,7 +68,7 @@ public class SignUp extends AppCompatActivity {
                             if (dataSnapshot.child(phone.getText().toString()).exists()) {
                                 Toast.makeText(getApplicationContext(), "Tis phone number is already exist in the database !!", Toast.LENGTH_LONG).show();
                             } else {
-                                User user = new User(name.getText().toString(), password.getText().toString());
+                                User user = new User(name.getText().toString(), password.getText().toString(),"false");
                                 table_user.child(phone.getText().toString()).setValue(user);
                                 Toast.makeText(getApplicationContext(), "Sign Up Successfully !!", Toast.LENGTH_LONG).show();
                             }

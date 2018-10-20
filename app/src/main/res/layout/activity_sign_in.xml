@@ -49,17 +49,31 @@
             app:met_singleLineEllipsis="true"
             />
 
-        <com.rey.material.widget.CheckBox
-            android:id="@+id/ckbRemember"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Remember me"
-            android:gravity="center_vertical"
-            style="@style/Material.Drawable.CheckBox"
-            android:textColor="@android:color/white"
-            app:cbd_strokeColor = "@android:color/white"
-            app:cbd_tickColor = "@color/colorPrimaryDark"
-            />
+            android:orientation="horizontal">
+
+            <com.rey.material.widget.CheckBox
+                android:id="@+id/ckbRemember"
+                style="@style/Material.Drawable.CheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="Remember me"
+                android:textColor="@android:color/white"
+                app:cbd_strokeColor="@android:color/white"
+                app:cbd_tickColor="@color/colorPrimaryDark" />
+
+            <TextView
+                android:id="@+id/forgetPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="Forget Password"
+                android:defaultFocusHighlightEnabled="true"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
     </LinearLayout>
 
     <info.hoang8f.widget.FButton

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<android.support.design.widget.CoordinatorLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".FoodDetails">
 
     <android.support.design.widget.AppBarLayout
@@ -20,8 +20,8 @@
             android:layout_height="360dp"
             android:fitsSystemWindows="true"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:contentScrim="#0e0d0e"
-            app:expandedTitleTextAppearance="@android:color/transparent"
+            app:contentScrim="#0e0"
+            app:expandedTitleTextAppearance="@android:color/black"
             >
             
             <ImageView
@@ -119,7 +119,7 @@
                 </LinearLayout>
             </android.support.v7.widget.CardView>
             <android.support.v7.widget.CardView
-                app:cardElevation="5dp"
+                app:cardElevation="8dp"
                 app:cardUseCompatPadding="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -129,13 +129,28 @@
                    android:layout_width="match_parent"
                    android:layout_height="wrap_content">
 
+                   <RelativeLayout
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content">
+
                    <RatingBar
                        android:id="@+id/ratingBar"
                        android:rating="0"
                        android:max="5"
+                       android:layout_centerVertical="true"
                        android:isIndicator="true"
                        android:layout_width="wrap_content"
                        android:layout_height="wrap_content" />
+
+                       <TextView
+                           android:id="@+id/rateValue"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:layout_centerVertical="true"
+                           android:layout_toRightOf="@+id/ratingBar"
+                           android:layout_marginLeft="5dp"
+                           />
+                   </RelativeLayout>
 
                    <TextView
                        android:id="@+id/food_description"
@@ -153,7 +168,7 @@
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
-    <android.support.design.widget.FloatingActionButton
+    <com.andremion.counterfab.CounterFab
         android:id="@+id/btnCart"
         android:src="@drawable/ic_shopping_cart_black_24dp"
         app:backgroundTint="@android:color/white"

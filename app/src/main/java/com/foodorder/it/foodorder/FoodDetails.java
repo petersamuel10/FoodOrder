@@ -1,23 +1,28 @@
 package com.foodorder.it.foodorder;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.andremion.counterfab.CounterFab;
 import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
 import com.foodorder.it.foodorder.Common.Common;
 import com.foodorder.it.foodorder.Database.Database;
 import com.foodorder.it.foodorder.Model.Food;
 import com.foodorder.it.foodorder.Model.Order;
 import com.foodorder.it.foodorder.Model.Rating;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,13 +36,17 @@ import com.stepstone.apprating.listener.RatingDialogListener;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 public class FoodDetails extends AppCompatActivity implements RatingDialogListener {
 
-    TextView food_name, food_price, food_description;
+    TextView food_name, food_price, food_description,rateValue;
     ImageView food_image;
     CollapsingToolbarLayout collapsingToolbarLayout;
     ElegantNumberButton numberButton;
-    FloatingActionButton btnCart, btnRating;
+    FloatingActionButton btnRating;
+    CounterFab btnCart;
 
     RatingBar ratingBar;
 
@@ -48,10 +57,19 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
     DatabaseReference ratingTbl;
 
     Food currentFood;
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //add font library
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/restaurant_font.otf")
+                .setFontAttrId(R.attr.fontPath).build());
+
         setContentView(R.layout.activity_food_details);
 
         //init firebase
@@ -70,12 +88,12 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
         btnCart = findViewById(R.id.btnCart);
         btnRating = findViewById(R.id.btnRating);
         ratingBar = findViewById(R.id.ratingBar);
+        rateValue = findViewById(R.id.rateValue);
 
         btnRating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(FoodDetails.this, "donnnnnnnnne", Toast.LENGTH_SHORT).show();
-                  showRatingDialog();
+                showRatingDialog();
             }
         });
 
@@ -91,9 +109,14 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
                         currentFood.getDiscount()
                 ));
                 Toast.makeText(FoodDetails.this, "Order added to Cart", Toast.LENGTH_SHORT).show();
+
+                // get count on cart fbButton
+                btnCart.setCount(new Database(getBaseContext()).getCountCart());
             }
         });
 
+        // get count on cart fbButton
+        btnCart.setCount(new Database(this).getCountCart());
 
         collapsingToolbarLayout = findViewById(R.id.collapsing);
         collapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.expanedAppBar);
@@ -105,7 +128,6 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
 
         if(!foodId.isEmpty()&&foodId!=null) {
          if(Common.isConnectToTheInternet(getBaseContext())) {
-
              GetDetailsFood(foodId);
              getRatingFood(foodId);
          }
@@ -118,24 +140,32 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
     }
 
     private void getRatingFood(String foodId) {
-       // Rating rating = new Rating();
+
         Query query = ratingTbl.orderByChild("foodId").equalTo(foodId);
 
         query.addValueEventListener(new ValueEventListener() {
-            int sum = 0;
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                int count = 0;
-                count = (int) dataSnapshot.getChildrenCount();
+                int sum = 0;
+                float average=0.0f;
                 for(DataSnapshot postSnapshot : dataSnapshot.getChildren())
                 {
                     Rating rating1 = postSnapshot.getValue(Rating.class);
                     sum+= Integer.parseInt(rating1.getRateValue());
+                    count++;
                 }
                 if(count!=0) {
-                    float average = sum / count;
+                    average = sum / count;
                     ratingBar.setRating(average);
                 }
+
+                String [] ratingValue = {"Very Bad", "Not good", "Quite ok", "Very Good", "Excellent !!!"};
+                if (average>0) {
+                    average = average - 1;
+                    rateValue.setText(String.format("%.1f  %s",(average+1),ratingValue[(int)Math.round(average)]));
+                }else
+                    rateValue.setText("0.0");
             }
 
             @Override
@@ -166,7 +196,6 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
                 .setWindowAnimation(R.style.RatingDialogFadeAnim)
                 .create(FoodDetails.this)
                 .show();
-
     }
 
     private void GetDetailsFood(final String foodId) {
@@ -209,13 +238,27 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
     @Override
     public void onPositiveButtonClicked(int value, String comment) {
 
-        final Rating rating = new Rating(Common.CurrentUser.getPhone(),foodId,String.valueOf(value),comment);
+        final Rating rating = new Rating(Common.CurrentUser.getPhone(),foodId,String.valueOf(value),comment,foodId+"_"+Common.CurrentUser.getPhone());
 
-        ratingTbl.child(Common.CurrentUser.getPhone()).addValueEventListener(new ValueEventListener() {
+        final Query query = ratingTbl.orderByChild("id_userPhone").equalTo(foodId+"_"+Common.CurrentUser.getPhone());
+        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                ratingTbl.child(Common.CurrentUser.getPhone()).setValue(rating);
-                getRatingFood(foodId);
+                String s= null;
+                for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren())
+                {
+                    s = dataSnapshot1.getKey();
+                }
+
+                if(s!=null)
+                {
+                 ratingTbl.child(s).removeValue();
+                 ratingTbl.push().setValue(rating);
+                 query.removeEventListener(this);
+                }else {
+                    ratingTbl.push().setValue(rating);
+                     query.removeEventListener(this);
+                }
             }
 
             @Override
@@ -223,7 +266,6 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
 
             }
         });
-
 
     }
 

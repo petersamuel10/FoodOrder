@@ -1,16 +1,23 @@
 package com.foodorder.it.foodorder;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.FacebookSdk;
 import com.foodorder.it.foodorder.Common.Common;
 import com.foodorder.it.foodorder.Model.User;
 import com.google.android.gms.signin.SignIn;
@@ -20,10 +27,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.security.MessageDigest;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.paperdb.Paper;
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,9 +46,23 @@ public class MainActivity extends AppCompatActivity {
     TextView txtSlogan;
 
     @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //add font library
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/restaurant_font.otf")
+                .setFontAttrId(R.attr.fontPath).build());
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_main);
+
+
+        printKeyHash();
 
         ButterKnife.bind(this);
         Typeface face = Typeface.createFromAsset(getAssets(),"fonts/NABILA.TTF");
@@ -74,6 +99,21 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    private void printKeyHash() {
+
+        try{
+
+            PackageInfo info = getPackageManager().getPackageInfo("com.foodorder.it.foodorder", PackageManager.GET_SIGNATURES);
+            for(Signature signature:info.signatures)
+            {
+                MessageDigest md= MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                Log.d("HHHHA", Base64.encodeToString(md.digest(),Base64.DEFAULT));
+            }
+        }catch (Exception e)
+        {}
     }
 
     // login if is remember

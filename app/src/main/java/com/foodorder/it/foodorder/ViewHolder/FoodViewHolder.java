@@ -13,16 +13,20 @@ import com.foodorder.it.foodorder.R;
 
 public class FoodViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    public TextView food_name;
-    public ImageView food_image ,fav;
+    public TextView food_name,food_price;
+    public ImageView food_image ,fav_image,share_image,quick_cart;
     private ItemClickListener itemClickListener;
 
     public FoodViewHolder(@NonNull View itemView) {
         super(itemView);
 
         food_name = itemView.findViewById(R.id.food_name);
+        food_price = itemView.findViewById(R.id.food_price);
         food_image = itemView.findViewById(R.id.food_Image);
-        fav = itemView.findViewById(R.id.fav);
+        fav_image = itemView.findViewById(R.id.fav);
+        share_image = itemView.findViewById(R.id.btnShare);
+        quick_cart = itemView.findViewById(R.id.btn_quick_cart);
+
         itemView.setOnClickListener(this);
 
     }
